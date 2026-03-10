@@ -40,7 +40,7 @@ This makes EUID suitable for:
 
 ✅ Zero external dependencies
 
-✅ Designed for distributed systems
+✅ Designed for modern distributed architectures
 
 ---------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------
@@ -51,7 +51,7 @@ This makes EUID suitable for:
 
 Comparison with UUID v4 and UUID v7
 
-* UUID v4
+# UUID v4
 
 - Fully random
 
@@ -61,7 +61,7 @@ Comparison with UUID v4 and UUID v7
 
 - No infrastructure awareness
 
-* UUID v7
+# UUID v7
 
 - Time-ordered
 
@@ -71,7 +71,7 @@ Comparison with UUID v4 and UUID v7
 
 - Improved database performance
 
-* EUID
+# EUID
 
 - Time-ordered (48-bit timestamp)
 
@@ -138,6 +138,24 @@ EUID is designed with infrastructure principles in mind:
 The goal is not just uniqueness — but operational intelligence.
 
 
+--------------------------------------------------------------------
+-----------------------------------------------------------
+
+📌 When Should You Use EUID?
+
+EUID can be useful when:
+
+• building distributed systems
+• needing database-friendly identifiers
+• encoding infrastructure topology in IDs
+• generating very high volumes of identifiers
+• requiring deterministic and decodable identifiers
+
+If you simply need a random identifier, UUID v4 or UUID v7 may be sufficient.
+
+
+------------------------------------------------------------------------
+
 📦 Installation
 
 Maven
@@ -200,6 +218,19 @@ Ordering guarantees
 Run tests:
 
 mvn test
+
+-----------------------------------------------------------------
+-------------------------------------------------------------------------
+
+🗺 Roadmap
+
+Planned improvements:
+
+• Spring Boot auto-configuration module
+• JMH performance benchmarks
+• Additional encoding formats
+• Extended documentation and examples
+
 
 
 📄 License
