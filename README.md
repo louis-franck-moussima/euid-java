@@ -1,9 +1,21 @@
+![Maven Central](https://img.shields.io/maven-central/v/io.github.louis-franck-moussima/euid-core)
+![License](https://img.shields.io/badge/license-Apache%202.0-blue)
+![Java](https://img.shields.io/badge/java-17+-orange)
+
 # EUID — Evolutionary Unique Identifier
 
-EUID is a high-performance, time-ordered UUID (v8) generator designed for distributed systems and database-friendly indexing.
+EUID is a high-performance UUID v8 generator designed for distributed systems.
 
-It combines monotonic time ordering with structured topology awareness — while remaining fully RFC 4122 compliant.
+Unlike traditional UUIDs, EUID embeds infrastructure topology (region, shard, node)
+directly into the identifier while preserving time-ordered generation and full
+RFC 4122 compatibility.
 
+This makes EUID suitable for:
+
+• database-friendly indexing
+• distributed architectures
+• traceable infrastructure identifiers
+• high-throughput ID generation
 
 ---------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------------
@@ -81,9 +93,15 @@ topology encoding and deterministic structure rather than randomness.
 
 EUID uses a structured 128-bit layout:
 
-| 48-bit Timestamp | 4-bit Version | 6-bit Region    | 6-bit Shard |
-| ---------------- | ------------- | --------------- | ----------- |
-| 2-bit Variant    | 14-bit Node   | 48-bit Sequence |             |
+| Bits | Field     |
+| ---- | --------- |
+| 48   | Timestamp |
+| 4    | Version   |
+| 6    | Region    |
+| 6    | Shard     |
+| 2    | Variant   |
+| 14   | Node      |
+| 48   | Sequence  |
 
 # Field Description
 
@@ -150,6 +168,20 @@ Maven
     System.out.println("Node: " + decoded.getNode());
     System.out.println("Sequence: " + decoded.getSequence());
 
+
+
+# Example output
+
+EUID:   019caad2-a445-8083-8005-000000000011
+Base58: 1CYctoRWaz5VGXwscmiovG
+
+Timestamp: 2026-03-01T19:14:17.285Z
+Region: 2
+Shard: 3
+Node: 5
+Sequence: 17
+
+----------------------------------------------------------------
 
 🧪 Testing
 

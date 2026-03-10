@@ -7,9 +7,12 @@
     <groupId>io.github.louis-franck-moussima</groupId>
     <artifactId>euid-core</artifactId>
     <version>0.1.0</version>
+    <packaging>jar</packaging>
+
 
     <name>euid-core</name>
     <description>High-performance distributed unique ID generator</description>
+    <url>https://github.com/louis-franck-moussima/euid-java</url>
 
     <!-- Apache 2.0 License -->
     <licenses>
@@ -31,9 +34,9 @@
 
     <!-- Source control -->
     <scm>
-        <connection>scm:git:git://github.com/louis-franck-moussima/euid.git</connection>
-        <developerConnection>scm:git:ssh://github.com:louis-franck-moussima/euid.git</developerConnection>
-        <url>https://github.com/louis-franck-moussima/euid</url>
+        <connection>scm:git:git://github.com/louis-franck-moussima/euid-java.git</connection>
+        <developerConnection>scm:git:ssh://github.com:louis-franck-moussima/euid-java.git</developerConnection>
+        <url>https://github.com/louis-franck-moussima/euid-java</url>
         <tag>HEAD</tag>
     </scm>
 
@@ -59,6 +62,69 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
             </plugin>
+
+            <!-- Sources JAR -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.3.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Javadoc JAR -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.6.3</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>3.2.4</version>
+
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <executable>C:\Program Files\GnuPG\bin\gpg.exe</executable>
+                    <useAgent>true</useAgent>
+                </configuration>
+
+            </plugin>
+
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.6.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>central</publishingServerId>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 
