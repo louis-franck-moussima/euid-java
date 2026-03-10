@@ -12,10 +12,10 @@ RFC 4122 compatibility.
 
 This makes EUID suitable for:
 
-• database-friendly indexing
-• distributed architectures
-• traceable infrastructure identifiers
-• high-throughput ID generation
+- database-friendly indexing
+- distributed architectures
+- traceable infrastructure identifiers
+- high-throughput ID generation
 
 ---------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------------
@@ -145,11 +145,11 @@ The goal is not just uniqueness — but operational intelligence.
 
 EUID can be useful when:
 
-• building distributed systems
-• needing database-friendly identifiers
-• encoding infrastructure topology in IDs
-• generating very high volumes of identifiers
-• requiring deterministic and decodable identifiers
+- building distributed systems
+- needing database-friendly identifiers
+- encoding infrastructure topology in IDs
+- generating very high volumes of identifiers
+- requiring deterministic and decodable identifiers
 
 If you simply need a random identifier, UUID v4 or UUID v7 may be sufficient.
 
