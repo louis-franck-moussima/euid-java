@@ -173,10 +173,17 @@ EUID is intentionally structured.
 
 It favors:
 
+<<<<<<< HEAD
  - deterministic structure over opaque randomness
  - time ordering over insertion disorder
  - operational observability over black-box IDs
  - decodability over total opacity
+=======
+- deterministic structure over opaque randomness
+- time ordering over insertion disorder
+- operational observability over black-box IDs
+- decodability over total opacity
+>>>>>>> 4897c2d (Add CHANGELOG for v0.1.0)
 
 That makes it especially useful in systems where identifiers are part of the operational story.
 
@@ -329,3 +336,4 @@ See LICENSE for details.
 Louis Franck Moussima
 
 GitHub: https://github.com/louis-franck-moussima
+

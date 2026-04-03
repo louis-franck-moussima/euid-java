@@ -36,3 +36,11 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+##Add benchmarks and publish results
+  #Publish GitHub releases and changelog
+  #Clean the repo and CI/publishing setup
+  #Rewrite the README around use cases and proof
+  #Add Spring/JPA examples
+  #Post technical articles and launch posts
+  #Submit it to Java newsletters, communities, and awesome lists
