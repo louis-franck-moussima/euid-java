@@ -52,7 +52,7 @@ EUID may *not* be the right choice if:
 - you only need a simple random ID
 - you explicitly do not want IDs to reveal topology structure
 - UUID v4 or UUID v7 already fully solves your problem
-- you prefer randomness over structured metadata
+
 
 ---
 
@@ -68,6 +68,9 @@ EUID may *not* be the right choice if:
 - Base58 encoding support
 - zero external dependencies
 - Java 17+
+- two generation strategies:
+  - `FastEuidGenerator`
+  - `ConcurrentEuidGenerator`
 
 ---
 
@@ -85,6 +88,52 @@ EUID may *not* be the right choice if:
 ---------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------
 
+# Generator strategies
+
+EUID provides two generator implementations for different workloads.
+
+* FastEuidGenerator
+
+Optimized for single-threaded or thread-confined use.
+
+Use this when:
+
+- one thread owns one generator instance
+- you want minimal overhead
+- you want the highest possible throughput in local or per-thread generation
+
+Example:
+
+    import io.github.louisfranckmoussima.euid.core.EuidGenerator;
+    import io.github.louisfranckmoussima.euid.core.EuidGenerators;
+
+    EuidGenerator generator = EuidGenerators.fast(1, 1, 1);
+
+FastEuidGenerator should not be shared across multiple threads without external synchronization.
+
+ConcurrentEuidGenerator
+
+Optimized for shared concurrent use.
+
+Use this when:
+
+- the same generator instance is used by multiple threads
+- you want thread safety
+- you want better scalability under parallel load
+
+Example:
+
+    import io.github.louisfranckmoussima.euid.core.EuidGenerator;
+    import io.github.louisfranckmoussima.euid.core.EuidGenerators;
+
+    EuidGenerator generator = EuidGenerators.concurrent(1, 1, 1);
+
+You can also choose a custom block size:
+
+    EuidGenerator generator = EuidGenerators.concurrent(1, 1, 1, 2048);
+
+-------------------------------------------------------------
+-------------------------------------------------------------
 # ✨ Quick start
 
     import io.github.louisfranckmoussima.euid.core.DecodedEuid;
@@ -117,22 +166,74 @@ EUID may *not* be the right choice if:
 --------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------
 
-# Example output
+# Decoding Example
 
-     EUID: 019caad2-a445-8083-8005-000000000011
- 
-     Base58: 1CYctoRWaz5VGXwscmiovG
- 
-     Timestamp: 2026-03-01T19:14:17.285Z
- 
-     Region: 2
- 
-     Shard: 3
- 
-     Node: 5
- 
-     Sequence: 17
+    UUID id = EuidGenerators.fast(2, 3, 4).generate();
 
+    DecodedEuid decoded = EuidDecoder.decode(id);
+
+    System.out.println(decoded.getInstant());
+    System.out.println(decoded.getRegion());
+    System.out.println(decoded.getShard());
+    System.out.println(decoded.getNode());
+    System.out.println(decoded.getSequence());
+
+This is useful for:
+
+debugging distributed systems
+tracing routing or sharding behavior
+operational analytics
+understanding where an ID came from
+
+-----------------------------------------------------------------
+-------------------------------------------------------------------------
+
+# Base58 support
+
+EUID can be represented in Base58 for more compact and user-friendlier output.
+
+    UUID id = EuidGenerators.fast(1, 1, 1).generate();
+
+    String encoded = EuidBase58Codec.encode(id);
+    UUID decoded = EuidBase58Codec.decode(encoded);
+
+    System.out.println(encoded);
+    System.out.println(id.equals(decoded)); // true
+
+
+Use Base58 when you want:
+
+- shorter string representations
+- reduced visual ambiguity
+- friendlier copy/paste in logs, URLs, or dashboard
+
+
+-----------------------------------------------------------------
+-------------------------------------------------------------------------
+
+# Batch Generation
+
+UUID batch
+
+
+    EuidGenerator generator = EuidGenerators.fast(1, 1, 1);
+    EuidBatchGenerator batchGenerator = new EuidBatchGenerator(generator);
+
+    var ids = batchGenerator.generateBatch(10);
+    System.out.println(ids);
+
+
+Base58 batch
+
+    EuidGenerator generator = EuidGenerators.concurrent(1, 1, 1);
+    EuidBatchBase58Generator batchGenerator = new EuidBatchBase58Generator(generator);
+
+    String[] ids = batchGenerator.generateBatch(10);
+    for (String id : ids) {
+        System.out.println(id);
+    }
+
+--------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------
 
 # 🧠 Bit Layout
@@ -173,23 +274,65 @@ EUID is intentionally structured.
 
 It favors:
 
-<<<<<<< HEAD
- - deterministic structure over opaque randomness
- - time ordering over insertion disorder
- - operational observability over black-box IDs
- - decodability over total opacity
-=======
+
 - deterministic structure over opaque randomness
 - time ordering over insertion disorder
 - operational observability over black-box IDs
 - decodability over total opacity
->>>>>>> 4897c2d (Add CHANGELOG for v0.1.0)
+- deterministic structure over opaque randomness
+- time ordering over insertion disorder
+- operational observability over black-box IDs
+- decodability over total opacity
+
 
 That makes it especially useful in systems where identifiers are part of the operational story.
 
 
 --------------------------------------------------------------------
 -----------------------------------------------------------
+------------------------------------------------------------------------
+
+# API overview
+
+Factory methods
+
+    EuidGenerators.fast(int region, int shard, int node)
+    EuidGenerators.concurrent(int region, int shard, int node)
+    EuidGenerators.concurrent(int region, int shard, int node, int blockSize)
+
+
+Common abstraction
+
+    public interface EuidGenerator {
+        UUID generate();
+    }
+
+
+------------------------------------------------------------
+------------------------------------------------------------
+
+# Performance profile
+
+EUID provides two performance-oriented strategies:
+
+- FastEuidGenerator
+  Best for single-threaded or thread-confined generation
+- ConcurrentEuidGenerator
+  Best for shared concurrent generation
+
+Internal benchmark highlights
+
+- FastEuidGenerator: strong single-thread throughput
+- FastEuidGenerator: excellent throughput when using one generator per thread
+- ConcurrentEuidGenerator: strong shared multi-thread throughput
+- concurrent duplicate-safety stress tests passed with 0 duplicates detected
+
+Benchmark results depend on hardware, JVM, warmup, workload, and benchmark method.
+Formal JMH benchmarks are planned.
+
+
+----------------------------------------------------------
+---------------------------------------------------------
 
 # Comparison
 
@@ -219,43 +362,13 @@ It offers a structured alternative for systems that benefit from sortable and me
 
 ------------------------------------------------------------------------
 
-# Decoding example
+# Validation rules
 
-    UUID id = generator.generate();
-    DecodedEuid decoded = EuidDecoder.decode(id);
+- region: 0..63
+- shard: 0..63
+- node: 0..16383
+- blockSize for concurrent generator: must be > 0
 
-    System.out.println(decoded.getInstant());
-    System.out.println(decoded.getRegion());
-    System.out.println(decoded.getShard());
-    System.out.println(decoded.getNode());
-    System.out.println(decoded.getSequence());
-
-
-This is useful for:
-
-- tracing where an ID was produced
-- debugging routing or sharding behavior
-- understanding generation order
-- operational analytics
-
------------------------------------------------------------------
--------------------------------------------------------------------------
-
-# Base58 support
-
-EUID can be represented in Base58 for more compact and user-friendlier output.
-
-    UUID id = generator.generate();
-
-    String encoded = EuidBase58Codec.encode(id);
-    System.out.println(encoded);
-
-
-Use Base58 when you want:
-
-- shorter string representations
-- reduced visual ambiguity
-- friendlier copy/paste in logs, URLs, or dashboard
 
 --------------------------------------------------------------------------
 
@@ -268,6 +381,9 @@ The project includes tests for:
 - Base58 round-trip validation
 - constructor validation
 - ordering guarantees
+- custom block size validation
+- batch generation
+- duplicate safety
 
 Run tests with:
 
@@ -316,7 +432,7 @@ Areas where feedback is especially valuable:
 
 - API ergonomics
 - bit layout evolution
-- multi-threaded generation behavior
+- concurrent generation behavior
 - benchmark methodology
 - Spring / JPA integration
 - production use cases

@@ -37,10 +37,30 @@ build/
 ### Mac OS ###
 .DS_Store
 
-##Add benchmarks and publish results
-  #Publish GitHub releases and changelog
-  #Clean the repo and CI/publishing setup
-  #Rewrite the README around use cases and proof
-  #Add Spring/JPA examples
-  #Post technical articles and launch posts
-  #Submit it to Java newsletters, communities, and awesome lists
+
+
+# IntelliJ IDEA
+.idea/
+
+# Eclipse / STS
+.apt_generated/
+.settings/
+.sts4-cache/
+
+# NetBeans
+nbproject/private/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+
+# OS files
+Thumbs.db
+
+# Logs
+*.log
+
+# Env / local config
+.env
+.env.*
