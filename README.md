@@ -412,11 +412,6 @@ To reduce cross-benchmark interference, benchmark groups were run in focused JMH
 
 Benchmark results depend on hardware, JVM, operating system, thread count, power/thermal conditions, and benchmark configuration.
 
-Benchmarks can be executed from the packaged JMH jar, for example:
-
-```bash
-java -jar target/benchmarks.jar StringAndBase58Benchmark
-````
 -------------------------
 
 # Roadmap
