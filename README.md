@@ -145,7 +145,7 @@ You can also choose a custom block size:
 
     public class Main {
         public static void main(String[] args) {
-        EuidGenerator generator = new EuidGenerator(1, 1, 1);
+        EuidGenerator generator = new EuidGenerator.concurrent(1, 1, 1);
 
         UUID id = generator.generate();
         System.out.println("EUID: " + id);
@@ -180,10 +180,10 @@ You can also choose a custom block size:
 
 This is useful for:
 
-debugging distributed systems
-tracing routing or sharding behavior
-operational analytics
-understanding where an ID came from
+ - debugging distributed systems
+ - tracing routing or sharding behavior
+ - operational analytics
+ - understanding where an ID came from
 
 -----------------------------------------------------------------
 -------------------------------------------------------------------------
@@ -266,7 +266,7 @@ EUID uses a structured 128-bit layout:
 
 - Sequence: monotonic per-node counter
 
----------------------------------------------------------------------------------
+--------------------------
 
 # Design philosophy
 
@@ -274,23 +274,17 @@ EUID is intentionally structured.
 
 It favors:
 
-
-- deterministic structure over opaque randomness
-- time ordering over insertion disorder
-- operational observability over black-box IDs
-- decodability over total opacity
-- deterministic structure over opaque randomness
-- time ordering over insertion disorder
-- operational observability over black-box IDs
-- decodability over total opacity
+ - deterministic structure over opaque randomness
+ - time ordering over insertion disorder
+ - operational observability over black-box IDs
+ - decodability over total opacity
 
 
 That makes it especially useful in systems where identifiers are part of the operational story.
 
 
---------------------------------------------------------------------
------------------------------------------------------------
-------------------------------------------------------------------------
+----------------------
+
 
 # API overview
 
@@ -308,8 +302,8 @@ Common abstraction
     }
 
 
-------------------------------------------------------------
-------------------------------------------------------------
+-------------------------------
+----------------------------
 
 # Performance profile
 
@@ -320,36 +314,25 @@ EUID provides two performance-oriented strategies:
 - ConcurrentEuidGenerator
   Best for shared concurrent generation
 
-Internal benchmark highlights
-
-- FastEuidGenerator: strong single-thread throughput
-- FastEuidGenerator: excellent throughput when using one generator per thread
-- ConcurrentEuidGenerator: strong shared multi-thread throughput
-- concurrent duplicate-safety stress tests passed with 0 duplicates detected
-
-Benchmark results depend on hardware, JVM, warmup, workload, and benchmark method.
-Formal JMH benchmarks are planned.
-
-
-----------------------------------------------------------
----------------------------------------------------------
+-----------
+---------
 
 # Comparison
 
-UUID v4
+### UUID v4
 - random
 - widely used
 - no time ordering
 - no topology awareness
 - poor index locality for some database workloads
 
-UUID v7
+### UUID v7
 - time-ordered
 - improved database behavior
 - still primarily entropy-based
 - no embedded infrastructure metadata
 
-EUID
+### EUID
 - time-ordered
 - topology-aware
 - deterministic per-node sequence
@@ -360,7 +343,7 @@ EUID does not try to replace every UUID use case.
 It offers a structured alternative for systems that benefit from sortable and meaningful identifiers.
 
 
-------------------------------------------------------------------------
+--------------------------
 
 # Validation rules
 
@@ -370,7 +353,7 @@ It offers a structured alternative for systems that benefit from sortable and me
 - blockSize for concurrent generator: must be > 0
 
 
---------------------------------------------------------------------------
+-------------------------
 
 # Testing
 
@@ -389,20 +372,52 @@ Run tests with:
 
     mvn test
 
--------------------------------------------------------------------------------
-# Performance
+----------------------
+## Benchmarks
 
-Benchmark results are planned.
+> **Note for v0.2.0**  
+> Official JMH benchmark results are now available for **`euid-core:0.2.0`**.  
+> These benchmarks were executed from the **`euid-benchmarks`** project against **`euid-core:0.2.0`**.  
+> See [BENCHMARKS.md](BENCHMARKS.md) for the full benchmark report, environment details, and interpretation notes.
 
-Future benchmark coverage will include:
+The benchmark suite covers:
+- raw generation
+- multi-thread throughput
+- generation followed by `toString()`
+- Base58 encoding and decoding
 
-- generation throughput
-- contention scenarios
-- comparison with UUID.randomUUID()
-- comparison with UUID v7 implementations
-- ordered insertion behavior in databases
+### Highlights
 
------------------------------------------------------------------------------------
+- Raw generation:
+  - `ConcurrentEuidGenerator`: ~262.8M ops/s
+  - `FastEuidGenerator`: ~254.8M ops/s
+  - tested UUID v7 library: ~68.4M ops/s
+
+- Multi-thread:
+  - `FastEuidGenerator` (per thread): ~850.7M ops/s
+  - `ConcurrentEuidGenerator` (per thread): ~848.2M ops/s
+  - `ConcurrentEuidGenerator` (shared): ~826.3M ops/s
+  - tested UUID v7 library: ~39.6M ops/s
+
+- Generate + `toString()`:
+  - `FastEuidGenerator`: ~68.5M ops/s
+  - `ConcurrentEuidGenerator`: ~59.8M ops/s
+  - tested UUID v7 library: ~40.2M ops/s
+
+- Base58:
+  - encode: ~1.4M to ~1.5M ops/s
+  - decode: ~2.07M ops/s
+
+To reduce cross-benchmark interference, benchmark groups were run in focused JMH sessions.
+
+Benchmark results depend on hardware, JVM, operating system, thread count, power/thermal conditions, and benchmark configuration.
+
+Benchmarks can be executed from the packaged JMH jar, for example:
+
+```bash
+java -jar target/benchmarks.jar StringAndBase58Benchmark
+````
+-------------------------
 
 # Roadmap
 
@@ -414,7 +429,7 @@ Planned improvements:
 - additional encodings
 - expanded documentation
 
--------------------------------------------------------------------------
+---------------------
 
 # Versioning
 
@@ -422,7 +437,7 @@ The project is currently in an early stage.
 
 Before 1.0.0, APIs may still evolve as the library matures and real-world feedback is incorporated.
 
--------------------------------------------------------------------------
+------------------------
 
 # Contributing
 
@@ -437,7 +452,7 @@ Areas where feedback is especially valuable:
 - Spring / JPA integration
 - production use cases
 
------------------------------------------------------------------------
+---------------------
 
 # License
 
@@ -445,7 +460,7 @@ Licensed under the Apache License, Version 2.0.
 
 See LICENSE for details.
 
-----------------------------------------------------------------------------
+---------------------
 
 # 👤 Author
 
